@@ -34,8 +34,26 @@ public class MapGenerator : MonoBehaviour
             SmoothMap();
         }
 
+        int borderSize = 1;
+        int[,] borderedMap = new int[width + borderSize * 2, height + borderSize * 2];
+
+        for (int x = 0; x < borderedMap.GetLength(0); x++) {
+            for (int y = 0; y < borderedMap.GetLength(1); y++) {
+                //아래부분에서 기존 부분과 똑같이 하려는데 왜 x < width + borderSize 를 하는지 이해가 잘 안간다...(?)
+                // : 아마도 경계선을 늘리는 과정에서 위로 오른쪽으로만 커지기 때문에 중간을 맞춰주기 위해서..
+                if (x >= borderSize && x < width + borderSize && y >= borderSize && y < height + borderSize) {
+                    //경계맵의 내부에는 기존 맵의 값을 똑같이 넣어줌
+                    borderedMap[x, y] = map[x - borderSize, y - borderSize];
+                }
+                else {
+                    //경계를 벗어난 곳은 무조건 벽이되게 함
+                    borderedMap[x, y] = 1;
+                }
+            }
+        }
+        
         MeshGenerator meshGen = GetComponent<MeshGenerator>();
-        meshGen.GenerateMesh(map, 1);
+        meshGen.GenerateMesh(borderedMap, 1);
     }
 
     void RandomFillMap() {
