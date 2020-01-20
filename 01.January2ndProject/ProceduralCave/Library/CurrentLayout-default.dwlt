@@ -245,7 +245,7 @@ MonoBehaviour:
   m_MinSize: {x: 881, y: 492}
   m_MaxSize: {x: 16006, y: 14042}
   vertical: 0
-  controlID: 122
+  controlID: 144
 --- !u!114 &11
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -503,7 +503,7 @@ MonoBehaviour:
   m_Rotation:
     m_Target: {x: -0.21851853, y: 0.6518684, z: -0.2044436, w: -0.69680786}
     speed: 2
-    m_Value: {x: -0.21956114, y: 0.6515541, z: -0.20541902, w: -0.6964719}
+    m_Value: {x: -0.21851623, y: 0.65186155, z: -0.20444146, w: -0.69680053}
   m_Size:
     m_Target: 337.01996
     speed: 2
@@ -589,7 +589,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 74fbffffee3a0000
+      m_ExpandedIDs: 3cfbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -652,19 +652,19 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Materials
+    - Assets/Scripts
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Materials
+  - Assets/Scripts
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\UnityProjectHojun\TutorialProjects\01.January2ndProject\ProceduralCave
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 643b0000
-    m_LastClickedID: 15204
+    m_SelectedIDs: 783b0000
+    m_LastClickedID: 15224
     m_ExpandedIDs: 000000002a3a000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0

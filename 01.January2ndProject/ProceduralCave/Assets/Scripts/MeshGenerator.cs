@@ -52,6 +52,7 @@ public class MeshGenerator : MonoBehaviour
         float wallHeight = 5;
 
         foreach (List<int> outline in outlines) {
+            //Count-1을 하는 이유는 벽 정점을 설정할때, i + 1을 진행하기 때문에
             for (int i = 0; i < outline.Count -1; i++) {
                 int startIndex = wallVertices.Count;
                 wallVertices.Add(vertices[outline[i]]); //left
@@ -59,6 +60,8 @@ public class MeshGenerator : MonoBehaviour
                 wallVertices.Add(vertices[outline[i]] - Vector3.up * wallHeight); //bottom left
                 wallVertices.Add(vertices[outline[i + 1]] - Vector3.up * wallHeight); //bottom right
 
+                //wallTriangles의 인덱스는 위 벌텍스를 기준으로 하기때문에 4개를 가지고 2개의 삼각면을 만드는것,
+                //벌텍스가 4개추가되기 때문에 다음 트라이앵글의 스타트 인덱스는 4부터 시작하여 겹치지 않을것임.
                 wallTriangles.Add(startIndex + 0); //left 
                 wallTriangles.Add(startIndex + 2); //bottom left
                 wallTriangles.Add(startIndex + 3); //bottom right
@@ -129,9 +132,11 @@ public class MeshGenerator : MonoBehaviour
                 MeshFromPoint(square.topLeft, square.topRight, square.bottomRight, square.centreBottom, square.centreLeft);
                 break;
 
-            //4 points : 정점이 3개일때의 경우의 수
+            //4 points : 정점이 4개일때
             case 15:
                 MeshFromPoint(square.topLeft, square.topRight, square.bottomRight, square.bottomLeft);
+                //정점이 4개인 경우는 면이 꽉차있는 경우인데 이 경우는 정점을 검사해줄 필요가 없다. 왜냐하면 외곽선이 될수없는 정점들이라서
+                //그래서 미리 checkedVertices 에 값을 넣어줌으로서 최적화를 시켜준다
                 checkedVertices.Add(square.topLeft.vertexIndex);
                 checkedVertices.Add(square.topRight.vertexIndex);
                 checkedVertices.Add(square.bottomRight.vertexIndex);
@@ -165,20 +170,29 @@ public class MeshGenerator : MonoBehaviour
     
     //삼각형을 만든다는건 알겠음.
     void CreateTriangles(Node a, Node b, Node c) {
+        //정점 저장해 삼각형 정의, 맵상의 모든 정점을 삼각점으로 순서대로 저장
         triagles.Add(a.vertexIndex);
         triagles.Add(b.vertexIndex);
         triagles.Add(c.vertexIndex);
 
+        //그리고 설정해둔 삼각형 구조체를 통해 삼각형을 정의해주고 
+        //딕셔너리에 저장해준다.
         Triangle triangle = new Triangle(a.vertexIndex, b.vertexIndex, c.vertexIndex);
         AddTriangleToDictionary(triangle.vertexIndexA, triangle);
         AddTriangleToDictionary(triangle.vertexIndexB, triangle);
         AddTriangleToDictionary(triangle.vertexIndexC, triangle);
     }
 
+
+    //트라이앵글의 3가지 정점을 트라이앵글에 딕셔너리 자료구조로 저장한다.
     void AddTriangleToDictionary(int vertexIndexKey, Triangle triangle) {
+
+        //(벌텍스가 겹쳐있는 경우) 벌텍스에 대해 붙어있는 삼각형이 추가됨
         if (triangleDictionary.ContainsKey(vertexIndexKey)) {
             triangleDictionary[vertexIndexKey].Add(triangle);
         }
+        //최초 들어왔을때, 트라이앵글 딕셔너리가 생성되지 않으므로 이와같이 triangleList에다가 삼각형을 넣어주고,
+        //딕셔너리에도 넣어준다.
         else {
             List<Triangle> triangleList = new List<Triangle>();
             triangleList.Add(triangle);
@@ -188,24 +202,31 @@ public class MeshGenerator : MonoBehaviour
 
     void CalculateMeshOutlines() {
         for (int vertexIndex = 0; vertexIndex < vertices.Count; vertexIndex++) {
+            //검사된 정점이 아니라면 조건문 실행
             if (!checkedVertices.Contains(vertexIndex)) {
+                //현재 정점과 연결된 아웃라인 정점을 가져와 변수에 저장
                 int newOutlineVertex = GetConnectedOutlineVertex(vertexIndex);
-                if(newOutlineVertex != -1) {
+                if(newOutlineVertex != -1) {  // 연결된 외곽선 정점이 있을경우
                     checkedVertices.Add(vertexIndex);
 
                     List<int> newOutline = new List<int>();
                     newOutline.Add(vertexIndex);
                     outlines.Add(newOutline);
-                    FollowOutline(newOutlineVertex, outlines.Count - 1);
-                    outlines[outlines.Count - 1].Add(vertexIndex);
+
+                    //아래 함수에서 newOutline에 대해 vertexIndex와 이어질 newOutlineVertex 을 설정해줌 
+                    FollowOutline(newOutlineVertex, outlines.Count - 1); //아직 생성되지 않은 아웃라인 정점을 가져오기 위해서
+                    outlines[outlines.Count - 1].Add(vertexIndex); 
+                    //이부분 이해가 잘안가네;; 아마도 선이 원을돌며 이어지기 때문에 마지막으로 끝나는 지점(즉, 스타트 인덱스)을 다시 추가해주는 듯하다
                 }
             }
         }
     }
 
+    //재귀함수로 이어지는 아웃라인 정점과 이어진 정점을 계속 찾아와 검사합니다.
     private void FollowOutline(int vertexIndex, int outlineIndex) {
         outlines[outlineIndex].Add(vertexIndex);
         checkedVertices.Add(vertexIndex);
+
         int nextVertexIndex = GetConnectedOutlineVertex(vertexIndex);
 
         if(nextVertexIndex != -1) {
@@ -213,16 +234,17 @@ public class MeshGenerator : MonoBehaviour
         }
     }
 
+    //특정 정점에 대해서 이웃한 외곽선 정점을 가져온다.
     int GetConnectedOutlineVertex(int vertexIndex) {
         List<Triangle> trianglesContainingVertex = triangleDictionary[vertexIndex];
 
         for (int i = 0; i < trianglesContainingVertex.Count; i++) {
             Triangle triangle = trianglesContainingVertex[i];
             
-            //A,B,C를 알아냄 아웃라인 정점 말고
             for (int j = 0; j < 3; j++) {
                 int vertexB = triangle[j];
 
+                //vertexB가 VertexIndex와 같을때는 검사하지 않는다, 그리고 이미 체크된 정점의 경우에도 패스한다.
                 if(vertexB != vertexIndex && !checkedVertices.Contains(vertexB)) {
                     if (IsOutlineEdge(vertexIndex, vertexB)) {
                         return vertexB;
@@ -234,6 +256,7 @@ public class MeshGenerator : MonoBehaviour
         return -1;
     }
 
+    //두개의 정점이 딱 한개의 삼각형만 공유하는지 판단합니다.
     bool IsOutlineEdge(int vertexA, int vertexB) {
         List<Triangle> trianglesContainingVertexA = triangleDictionary[vertexA];
         int sharedTriangleCount = 0;
@@ -249,11 +272,13 @@ public class MeshGenerator : MonoBehaviour
         return sharedTriangleCount == 1;
     }
 
+    //삼각메쉬에 대해 정의를 한다
     struct Triangle {
         public int vertexIndexA;
         public int vertexIndexB;
         public int vertexIndexC;
 
+        //정점에 대한 인덱스를 저장하기 위한 변수
         int[] vertices;
 
         public Triangle (int a, int b, int c) {
@@ -267,12 +292,14 @@ public class MeshGenerator : MonoBehaviour
             vertices[2] = c;
         }
 
+        //인덱서 : 인덱스를 통해 데이터에 접근하도록 해줌
         public int this[int i] {
             get {
                 return vertices[i];
             }
         }
 
+        //
         public bool Contains(int vertexIndex) {
             return vertexIndex == vertexIndexA || vertexIndex == vertexIndexB || vertexIndex == vertexIndexC;
         }
