@@ -34,6 +34,9 @@ public class MapGenerator : MonoBehaviour
             SmoothMap();
         }
 
+        //작은 벽들과 독립된 공간의 한계 크기를 조절한다
+        ProcessMap();
+
         int borderSize = 1;
         int[,] borderedMap = new int[width + borderSize * 2, height + borderSize * 2];
 
@@ -55,6 +58,93 @@ public class MapGenerator : MonoBehaviour
         MeshGenerator meshGen = GetComponent<MeshGenerator>();
         meshGen.GenerateMesh(borderedMap, 1);
     }
+
+    //작은 벽들과 독립된 공간의 한계 크기를 조절한다
+    void ProcessMap() {
+        List<List<Coord>> wallRegions = GetRegions(1);
+        
+        //벽이 시작되는 한도 사이즈
+        int wallThreshholdSize = 50;
+        
+        foreach(List<Coord> wallRegion in wallRegions) {
+            if(wallRegion.Count < wallThreshholdSize) {
+                foreach (Coord tile in wallRegion) {
+                    map[tile.tileX, tile.tileY] = 0; 
+                }
+            }
+        }
+
+        List<List<Coord>> roomRegions = GetRegions(0);
+
+        //벽이 시작되는 한도 사이즈
+        //ex : 만약 0이라면 동굴이 채워질때 크기에 상관없이 많은 룸이 생성될거임
+        //하지만 룸사이즈한계선이 있다면 50이하 크기의 룸지역은 모두 벽으로 채워질것임
+        int roomThreshholdSize = 50;
+
+        foreach (List<Coord> roomRegion in roomRegions) {
+            if (roomRegion.Count < roomThreshholdSize) {
+                foreach (Coord tile in roomRegion) {
+                    map[tile.tileX, tile.tileY] = 1;
+                }
+            }
+        }
+    }
+
+    List<List<Coord>> GetRegions(int tileType) {
+        List<List<Coord>> regions = new List<List<Coord>>();
+        int[,] mapFlags = new int[width, height];
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                if (mapFlags[x,y] == 0 && map[x,y] == tileType) {
+                    List<Coord> newRegions = GetRegionTiles(x, y);
+                    regions.Add(newRegions);
+
+                    foreach(Coord tile in newRegions) {
+                        mapFlags[tile.tileX, tile.tileY] = 1;
+                    }
+                }
+            }
+        }
+
+        return regions;
+    }
+
+    List<Coord> GetRegionTiles(int startX, int startY) {
+        List<Coord> tiles = new List<Coord>();
+        int[,] mapFlags = new int[width, height];
+
+        //아래처럼 타입을 받아오는 식이라면, 물 바다 흙길 등등을 tileType으로 해서 받아와서 설정을 다르게 줄수도 있을듯.
+        int tileType = map[startX, startY];
+        print("tileType : " + tileType);
+
+        Queue<Coord> queue = new Queue<Coord>();
+        queue.Enqueue(new Coord(startX, startY));
+        mapFlags[startX, startY] = 1;
+
+        while (queue.Count > 0) {
+            Coord tile = queue.Dequeue();
+            tiles.Add(tile);
+
+            for (int x = tile.tileX - 1; x <= tile.tileX + 1; x++) {
+                for (int y = tile.tileY - 1; y <= tile.tileY + 1; y++) {
+                    if (IsInMapRange(x, y) && (x == tile.tileX || y == tile.tileY)) {
+                        if(mapFlags[x,y] == 0 && map[x,y] == tileType) {
+                            mapFlags[x, y] = 1;
+                            queue.Enqueue(new Coord(x, y));
+                        }
+                    }
+                }
+            }
+        }
+
+        return tiles;
+    }
+
+    bool IsInMapRange(int x, int y) {
+        return x >= 0 && x < width && y >= 0 && y < height;
+    }
+
 
     void RandomFillMap() {
         if (useRandomSeed) {
@@ -102,8 +192,8 @@ public class MapGenerator : MonoBehaviour
         //아래 2중 for문은 gridX의 주면 3*3에 있는 이웃의 값을 가져온다.
         for (int neighbourX = gridX - 1; neighbourX <= gridX + 1; neighbourX++) {
             for (int neighbourY = gridY - 1; neighbourY <= gridY + 1; neighbourY++) {
-                //아래 이프문은 예방문인듯. 가로세로값 이내에서 이웃값을 계산하기위한 조건문
-                if (neighbourX >= 0 && neighbourX < width && neighbourY >= 0 && neighbourY < height) {
+                //아래 이프문은 예방문인듯. 맵의 범위안에 이웃한 X,Y값이 있는지 판별
+                if (IsInMapRange(neighbourX, neighbourY)) {
                     //이웃의 값만 가져오기 위해 자기자신의 값을 제외한다
                     //자기 자신을 빼고 이웃한 8개의 타일에서 벽의 개수를 카운트합니다
                     if (neighbourX != gridX || neighbourY != gridY) {
@@ -117,6 +207,17 @@ public class MapGenerator : MonoBehaviour
             }
         }
         return wallCount;
+    }
+
+
+    struct Coord {
+        public int tileX;
+        public int tileY;
+
+        public Coord(int x, int y) {
+            tileX = x;
+            tileY = y;
+        }
     }
 
     //private void OnDrawGizmos() {
