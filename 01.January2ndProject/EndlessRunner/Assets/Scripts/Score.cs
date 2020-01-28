@@ -51,6 +51,11 @@ public class Score : MonoBehaviour
 
     public void PlayerDeath() {
         isDead = true;
+
+        if ((int)score * difficultyLevel > PlayerPrefs.GetInt("Highscore")){
+            PlayerPrefs.SetInt("Highscore", (int)score * difficultyLevel);
+        }
+
         deathMenu.ToggleEndScore((int)score * difficultyLevel);
     }
 }
