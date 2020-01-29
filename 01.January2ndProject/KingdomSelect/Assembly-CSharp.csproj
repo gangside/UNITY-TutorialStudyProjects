@@ -75,6 +75,7 @@
     <Compile Include="Assets\Demigiant\DOTweenPro\DOTweenTextMeshPro.cs" />
     <Compile Include="Assets\Demigiant\DOTweenPro\DOTweenTk2d.cs" />
     <Compile Include="Assets\Scripts\Bezier.cs" />
+    <Compile Include="Assets\Scripts\BezierCurves.cs" />
     <Compile Include="Assets\Scripts\CircleAnimation.cs" />
     <Compile Include="Assets\Scripts\FollowTarget.cs" />
     <Compile Include="Assets\Scripts\KingdomButton.cs" />

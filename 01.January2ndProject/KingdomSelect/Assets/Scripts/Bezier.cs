@@ -14,8 +14,7 @@ public class Bezier : MonoBehaviour {
     public Vector3[] positions = new Vector3[50];
 
     public float distance;
-    [Range(0, 1)]
-    public float distanceAmount = 1;
+    public float midDistance;
 
     void Start() {
 
@@ -27,6 +26,7 @@ public class Bezier : MonoBehaviour {
         if (transform.GetSiblingIndex() + 1 < transform.parent.childCount) {
             nextPoint = transform.parent.GetChild(transform.GetSiblingIndex() + 1);
             SetMidPoint(nextPoint);
+            Debug.Log(transform.GetSiblingIndex());
             DrawQuadraticCurve();
         }
 
@@ -34,17 +34,19 @@ public class Bezier : MonoBehaviour {
 
     void SetMidPoint(Transform nextPoint) {
         distance = Vector3.Distance(transform.GetChild(0).position, nextPoint.GetChild(0).position);
+        Vector3 midPosition = (nextPoint.GetChild(0).position + transform.GetChild(0).position) * 0.5f;
 
         GameObject pivot = new GameObject();
         GameObject point = new GameObject();
-
+        
+        //킹덤셀렉트 자식으로 만들겠다는 의미
         pivot.transform.parent = transform.parent.parent;
-
         point.transform.parent = pivot.transform;
-        point.transform.position += (Vector3.forward / 2) + Vector3.forward * distance * distanceAmount;
 
-        pivot.transform.localEulerAngles = new Vector3((transform.localEulerAngles.x + nextPoint.localEulerAngles.x) / 2,
-            (transform.localEulerAngles.y + nextPoint.localEulerAngles.y)/2, 0);
+        //point.transform.position 이 각 선의 pivot 반대 방향으로 향해야함.
+
+        Vector3 midPositionToHigh = (midPosition - pivot.transform.position).normalized * midDistance;
+        point.transform.position = midPositionToHigh;
 
         points[0] = transform.GetChild(0);
         points[1] = point.transform;

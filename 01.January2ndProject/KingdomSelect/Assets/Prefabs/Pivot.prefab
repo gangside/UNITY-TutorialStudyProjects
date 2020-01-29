@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2264675439190170446}
   - component: {fileID: 6553121517460218438}
   - component: {fileID: 1142003667467138099}
+  - component: {fileID: 2264489508929969263}
   m_Layer: 0
   m_Name: Pivot
   m_TagString: Untagged
@@ -77,7 +78,7 @@ LineRenderer:
   - {x: 0, y: 0, z: 1}
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 0.01
+    widthMultiplier: 0.005
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -96,9 +97,9 @@ LineRenderer:
     colorGradient:
       serializedVersion: 2
       key0: {r: 1, g: 0.95441294, b: 0, a: 0}
-      key1: {r: 1, g: 0.9831489, b: 0, a: 0.4509804}
+      key1: {r: 1, g: 0.9831489, b: 0, a: 1}
       key2: {r: 1, g: 1, b: 1, a: 1}
-      key3: {r: 0, g: 0, b: 0, a: 0.67058825}
+      key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
       key5: {r: 0, g: 0, b: 0, a: 0}
       key6: {r: 0, g: 0, b: 0, a: 0}
@@ -112,16 +113,16 @@ LineRenderer:
       ctime6: 0
       ctime7: 0
       atime0: 0
-      atime1: 13107
-      atime2: 30455
-      atime3: 47224
+      atime1: 11951
+      atime2: 51272
+      atime3: 65535
       atime4: 65535
       atime5: 0
       atime6: 0
       atime7: 0
       m_Mode: 0
       m_NumColorKeys: 2
-      m_NumAlphaKeys: 5
+      m_NumAlphaKeys: 4
     numCornerVertices: 0
     numCapVertices: 0
     alignment: 0
@@ -197,8 +198,25 @@ MonoBehaviour:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 0}
-  distance: 0
-  distanceAmount: 0.42
+  distance: 20
+  midDistance: 0.8
+--- !u!114 &2264489508929969263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4003501835238893617}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89242c808b5f6244bb208147cb3acb3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  p0: {fileID: 0}
+  p1: {fileID: 0}
+  p2: {fileID: 0}
+  b: {fileID: 0}
+  lineRenderer: {fileID: 0}
 --- !u!1 &4839313246466356550
 GameObject:
   m_ObjectHideFlags: 0
