@@ -4,11 +4,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 
 public class SmashCSS : MonoBehaviour
 {
+    public static SmashCSS instance;
+
     public List<Character> characters = new List<Character>();
     public GameObject characterCellPrefab;
+    public Transform playerSlotsContainer;
+
+    private void Awake() {
+        instance = this;
+    }
 
     private void Start() {
         //모든 캐릭터를 생성해줍니다. SpawnCharacterCell() 그럼 리스트를 반복문으로 돌려야함
@@ -40,5 +48,37 @@ public class SmashCSS : MonoBehaviour
 
         artwork.GetComponent<RectTransform>().pivot = uiPivot;
         artwork.GetComponent<RectTransform>().sizeDelta *= characterInfo.artworkScale;
+    }
+
+    public void ShowCharacterInSlot(int player, Character characterInfo) {
+
+        bool nullChar = (characterInfo == null);
+
+        Sprite artwork = nullChar ? null : characterInfo.sprite;
+        Color alpha = nullChar ? Color.clear : Color.white;
+        string name = nullChar ? string.Empty : characterInfo.name;
+        string playerNickname = nullChar ? string.Empty : "Player" + player.ToString();
+        string playerNumber = nullChar ? string.Empty : "P" + player.ToString();
+
+        Transform slot = playerSlotsContainer.GetChild(player);
+        slot.Find("Texts/Character Name").GetComponent<TextMeshProUGUI>().text = name;
+        slot.Find("Texts/Player Number").GetComponent<TextMeshProUGUI>().text = playerNumber;
+        slot.Find("Texts/Player Count").GetComponent<TextMeshProUGUI>().text = playerNickname;
+        //slot.Find("Artwork").GetComponent<Image>().sprite = artwork;
+
+        Transform slotArtwork = slot.Find("Artwork");
+
+        Sequence s = DOTween.Sequence();
+        s.Append(slotArtwork.DOLocalMoveX(-300, 0.1f).SetEase(Ease.OutCubic));
+        s.AppendCallback(() => slotArtwork.GetComponent<Image>().sprite = artwork);
+        s.AppendCallback(() => slotArtwork.GetComponent<Image>().color = alpha);
+        s.Append(slotArtwork.DOLocalMoveX(300, 0));
+        s.Append(slotArtwork.DOLocalMoveX(0, 0.05f).SetEase(Ease.OutCubic));
+
+
+    }
+
+    public void ConfirmCharacter(int player, Character character) {
+        playerSlotsContainer.GetChild(player).DOPunchPosition(Vector3.down, 0.5f, 10, 1, true);
     }
 }
