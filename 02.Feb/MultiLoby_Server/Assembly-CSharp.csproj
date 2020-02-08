@@ -52,6 +52,11 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\Server.cs" />
+     <Compile Include="Assets\Scripts\Shared\Net_CreateAccount.cs" />
+     <Compile Include="Assets\Scripts\Shared\Net_LoginRequest.cs" />
+     <Compile Include="Assets\Scripts\Shared\Net_OnCreateAccount.cs" />
+     <Compile Include="Assets\Scripts\Shared\Net_OnLoginRequest.cs" />
+     <Compile Include="Assets\Scripts\Shared\NetMsg.cs" />
  <Reference Include="UnityEngine.CoreModule">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2017.4.36f1/Editor/Data/Managed/UnityEngine/UnityEngine.CoreModule.dll</HintPath>
  </Reference>

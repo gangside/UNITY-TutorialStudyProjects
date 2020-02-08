@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -65,7 +67,10 @@ public class Server : MonoBehaviour {
 
 		switch (type) {
 			case NetworkEventType.DataEvent:
-				Debug.Log("데이터 발생");
+				BinaryFormatter formatter = new BinaryFormatter();
+				MemoryStream ms = new MemoryStream(recBuffer);
+				NetMsg msg = (NetMsg)formatter.Deserialize(ms);
+				OnData(connectionId, channelId, recHostId, msg);
 				break;
 			case NetworkEventType.ConnectEvent:
 				Debug.Log(string.Format("유저 [{0}]이 로그인 했습니다.", connectionId));
@@ -82,4 +87,63 @@ public class Server : MonoBehaviour {
 				break;
 		}
 	}
+
+    #region OnData
+    private void OnData(int connectionId, int channelId, int recHostId, NetMsg msg) {
+		Debug.Log("메세지를 받았습니다.");
+		switch (msg.OP) {
+			case NetOP.None:
+				Debug.Log("잘못된 네트워크 메세지");
+				break;
+			case NetOP.CreateAccount:
+				CreateAccount(connectionId, channelId, recHostId, (Net_CreateAccount)msg);
+				break;
+			case NetOP.LoginRequest:
+				LoginRequest(connectionId, channelId, recHostId, (Net_LoginRequest)msg);
+				break;
+		}
+	}
+
+	private void LoginRequest(int connectionId, int channelId, int recHostId, Net_LoginRequest loginInfo) {
+		Debug.Log(string.Format("로그인 정보 : {0},{1}", loginInfo.UsernameOrEmail, loginInfo.Password));
+
+		Net_OnLoginRequest olr = new Net_OnLoginRequest();
+		olr.Sucess = 0;
+		olr.Information = "로그인에 성공했습니다";
+		olr.Username = "morm";
+		olr.Discriminator = "0000";
+		olr.Token = "TOKEN";
+
+		SendClient(recHostId, connectionId, olr);
+	}
+
+	private void CreateAccount(int connectionId, int channelId, int recHostId, Net_CreateAccount ca) {
+		Debug.Log(string.Format("회원가입 정보 : {0},{1},{2}", ca.Username, ca.Password, ca.Email));
+
+		Net_OnCreateAccount oca = new Net_OnCreateAccount();
+		oca.Sucess = 0;
+		oca.Information = "계정이 생성됐습니다";
+
+		SendClient(recHostId, connectionId, oca);
+	}
+	#endregion
+
+	#region Send
+	public void SendClient(int recHost,int cnnId, NetMsg msg) {
+		//데이터를 모으는 변수(버퍼)
+		byte[] buffer = new byte[BYTE_SIZE];
+
+		//this is where you would crush your data into a byte[]
+		//데이터를 바이트로 압축
+		BinaryFormatter formatter = new BinaryFormatter();
+		MemoryStream ms = new MemoryStream(buffer);
+		formatter.Serialize(ms, msg);
+
+		if(recHost == 0 )
+			NetworkTransport.Send(hostId, cnnId, reliableChannel, buffer, BYTE_SIZE, out error);
+		else
+			NetworkTransport.Send(webHostId, cnnId, reliableChannel, buffer, BYTE_SIZE, out error);
+
+	}
+	#endregion
 }
