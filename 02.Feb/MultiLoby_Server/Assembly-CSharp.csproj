@@ -51,6 +51,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Database\Mongo.cs" />
      <Compile Include="Assets\Scripts\Server.cs" />
      <Compile Include="Assets\Scripts\Shared\Net_CreateAccount.cs" />
      <Compile Include="Assets\Scripts\Shared\Net_LoginRequest.cs" />

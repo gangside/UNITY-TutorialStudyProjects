@@ -20,6 +20,9 @@ public class Server : MonoBehaviour {
 
 	bool isStarted = false;
 
+	private Mongo db;
+
+
 	#region Monobehaviour
 	void Start () {
 		DontDestroyOnLoad(this.gameObject);
@@ -32,6 +35,10 @@ public class Server : MonoBehaviour {
 	#endregion
 
 	public void Init() {
+
+		db = new Mongo();
+		db.Init();
+
 		NetworkTransport.Init();
 
 		ConnectionConfig cc = new ConnectionConfig();
