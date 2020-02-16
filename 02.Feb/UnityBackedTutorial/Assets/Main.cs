@@ -6,18 +6,11 @@ public class Main : MonoBehaviour
 {
     public static Main Instance;
 
+    [HideInInspector]
     public Web web;
-
-    // Start is called before the first frame update
-    void Start()
-    {
+    
+    void Awake() {
         Instance = this;
         web = GetComponent<Web>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
