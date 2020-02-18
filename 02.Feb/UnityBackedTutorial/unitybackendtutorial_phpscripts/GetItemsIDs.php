@@ -5,7 +5,7 @@ $password = "";
 $dbname = "unitybackendtutorial";
 
 //User submited variables
-$userID = $_POST["userID"];
+$userID =  $_POST["userID"];
 
 
 // 데이터베이스를 연결

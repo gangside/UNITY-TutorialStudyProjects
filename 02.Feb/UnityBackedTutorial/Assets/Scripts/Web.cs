@@ -9,15 +9,16 @@ public class Web : MonoBehaviour
     string loginUri = "http://localhost/UnityBackendTutorial/Login.php";
     string RegisterUri = "http://localhost/unitybackendtutorial/RegisterUser.php";
     string getItemsIDs = "http://localhost/unitybackendtutorial/GetItemsIDs.php";
+    string getItem = "http://localhost/unitybackendtutorial/GetItem.php";
 
     public GuideMessage guideMessage;
 
     //로그인 성공 이벤트
     public event System.Action LoginSuccess;
 
-    public void ShowUserItems() {
-        StartCoroutine(GetItemsIDs(Main.Instance.userInfo.userID));
-    }
+    //public void ShowUserItems() {
+    //    StartCoroutine(GetItemsIDs(Main.Instance.userInfo.userID));
+    //}
 
     void Start() {
 
@@ -91,18 +92,29 @@ public class Web : MonoBehaviour
                 Debug.Log(www.error);
             }
             else {
-                if (www.downloadHandler.text == "Login Success.") {
+
+                //로그인 성공 여부를 어떻게 판단할것인가?
+                Debug.Log("아이디를 설정합니다" + username + "," + password);
+                Main.Instance.userInfo.SetCredentials(username, password);
+                Main.Instance.userInfo.SetID(www.downloadHandler.text[www.downloadHandler.text.Length - 1].ToString());
+
+                Debug.Log("Login Success : " + www.downloadHandler.text.Contains("Success"));
+   
+                if (www.downloadHandler.text.Contains("Success")) {
                     LoginSuccess();
+                    guideMessage.ChangeMessage(www.downloadHandler.text.Remove(www.downloadHandler.text.Length - 1));
+                }
+                else {
+                    guideMessage.ChangeMessage(www.downloadHandler.text);
                 }
 
-                Main.Instance.userInfo.SetCredentials(username, password);
-                Main.Instance.userInfo.SetID(www.downloadHandler.text);
-
-                Debug.Log(www.downloadHandler.text);
-                guideMessage.ChangeMessage(www.downloadHandler.text);
                 guideMessage.gameObject.SetActive(true);
 
-                
+
+                //정확하게 로그인했다면.. 튜토리얼꺼
+                //Main.Instance.userProfile.SetActive(true);
+                //Main.Instance.login.gameObject.SetActive(false);
+
             }
         }
     }
@@ -129,7 +141,7 @@ public class Web : MonoBehaviour
         }
     }
 
-    IEnumerator GetItemsIDs(string userID) {
+    public IEnumerator GetItemsIDs(string userID, System.Action<string> callback) {
         WWWForm form = new WWWForm();
         form.AddField("userID", userID);
 
@@ -137,23 +149,30 @@ public class Web : MonoBehaviour
             // Request and wait for the desired page.
             yield return webRequest.SendWebRequest();
 
-            //uri 주소를 / 기준으로 짜르면 페이지 목록을 확인 할 수 있지
-            string[] pages = getItemsIDs.Split('/');
-            //페이지의 넘버
-            int page = pages.Length - 1;
+            Debug.Log(webRequest.downloadHandler.text);
+            Debug.Log("현재 유저의 아이디에 해당하는 아이템ID를 가져왔습니다...");
 
-            if (webRequest.isNetworkError) {
-                Debug.Log(pages[page] + ": Error: " + webRequest.error);
-            }
-            else {
-                Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
-                byte[] results = webRequest.downloadHandler.data; //데이터를 바이트 형식으로 받아온다.
+            string jsonArray = webRequest.downloadHandler.text;
 
-                Debug.Log(webRequest.downloadHandler.text);
-                string jsonArray = webRequest.downloadHandler.text;
+            //Call callback function to pass results
+            callback(jsonArray);
+        }
+    }
 
-                //Call callback function to pass results
-            }
+    public IEnumerator GetItem(string itemID, System.Action<string> callback) {
+        WWWForm form = new WWWForm();
+        form.AddField("itemID", itemID);
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(getItem, form)) {
+            // Request and wait for the desired page.
+            yield return webRequest.SendWebRequest();
+
+            Debug.Log(webRequest.downloadHandler.text);
+            Debug.Log("아이템 정보를 받아왔습니다...");
+
+            string jsonArray = webRequest.downloadHandler.text;
+            //Call callback function to pass results
+            callback(jsonArray);
         }
     }
 }

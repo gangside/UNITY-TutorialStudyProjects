@@ -15,14 +15,13 @@ public class Login : MonoBehaviour
 
     private void Awake() {
         registerUI = GameObject.Find("Canvas").transform.Find("RegisterUser").gameObject.GetComponent<RegisterUser>();
-
+        //로그인 성공 이벤트 구독
+        
     }
 
     void Start()
     {
-        //로그인 성공 이벤트 구독
         Main.Instance.web.LoginSuccess += LoginSuccess;
-
         loginButton.onClick.AddListener(() =>
         {
             StartCoroutine(Main.Instance.web.Login(usernameInput.text, passwordInput.text));
@@ -35,8 +34,13 @@ public class Login : MonoBehaviour
     }
 
     public void LoginSuccess() {
-        GameObject.Find("Canvas").transform.Find("UserProfile").gameObject.SetActive(true);
+        Main.Instance.login.gameObject.SetActive(false);
+        Main.Instance.userProfile.SetActive(true);
+
+        //GameObject.Find("Canvas").transform.Find("UserProfile").gameObject.SetActive(true);
         GameObject.Find("Canvas").transform.Find("Inventory").gameObject.SetActive(true);
-        this.gameObject.SetActive(false);
+        //this.gameObject.SetActive(false);
+
+        //Main.Instance.Inventory.transform.GetComponent<Items>().CreateItems();
     }
 }

@@ -26,7 +26,9 @@ if ($result->num_rows > 0) {
     // output data of each row
     while($row = $result->fetch_assoc()) {
         if($row["password"] == $loginPass){
+            echo "Login Success";
             echo $row["id"];
+            //echo $loginUser;
             //Get user's data here
 
             //Get player info

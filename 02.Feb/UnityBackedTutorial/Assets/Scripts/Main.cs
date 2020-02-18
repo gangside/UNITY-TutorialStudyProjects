@@ -6,9 +6,14 @@ public class Main : MonoBehaviour
 {
     public static Main Instance;
 
-    [HideInInspector]
     public Web web;
     public UserInfo userInfo;
+    
+    //UI
+    [Header("UI")]
+    public Login login;
+    public GameObject Inventory;
+    public GameObject userProfile;
     
     void Awake() {
         Instance = this;
