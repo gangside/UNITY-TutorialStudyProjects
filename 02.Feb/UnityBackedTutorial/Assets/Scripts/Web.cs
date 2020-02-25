@@ -10,6 +10,7 @@ public class Web : MonoBehaviour
     string RegisterUri = "http://localhost/unitybackendtutorial/RegisterUser.php";
     string getItemsIDs = "http://localhost/unitybackendtutorial/GetItemsIDs.php";
     string getItem = "http://localhost/unitybackendtutorial/GetItem.php";
+    string sellItem = "http://localhost/unitybackendtutorial/SellItem.php";
 
     public GuideMessage guideMessage;
 
@@ -173,6 +174,20 @@ public class Web : MonoBehaviour
             string jsonArray = webRequest.downloadHandler.text;
             //Call callback function to pass results
             callback(jsonArray);
+        }
+    }
+
+    public IEnumerator SellItem(string itemID, string userID) {
+        WWWForm form = new WWWForm();
+        form.AddField("itemID", itemID);
+        form.AddField("userID", userID);
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(sellItem, form)) {
+            // Request and wait for the desired page.
+            yield return webRequest.SendWebRequest();
+
+            Debug.Log(webRequest.downloadHandler.text);
+            Debug.Log("물건이 판매됐습니다");
         }
     }
 }

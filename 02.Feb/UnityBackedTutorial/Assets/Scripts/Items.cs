@@ -62,6 +62,15 @@ public class Items : MonoBehaviour
             item.transform.Find("description").GetComponent<Text>().text = itemInfoJson["description"];
             item.transform.Find("price").GetComponent<Text>().text = itemInfoJson["price"];
 
+            //Set sell button
+            item.transform.Find("sell button").GetComponent<Button>().onClick.AddListener(()=>
+            {
+                string iId = itemId;
+                string uId = Main.Instance.userInfo.userID;
+
+                StartCoroutine(Main.Instance.web.SellItem(iId, uId));
+            });
+
             //continue to the next item
 
         }
